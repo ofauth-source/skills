@@ -4,7 +4,7 @@ description: Integrates OFAuth V3 into an application so its users can connect O
 license: Proprietary. Free to use for building OFAuth integrations.
 metadata:
   author: OFAuth
-  version: "1.1.1"
+  version: "1.1.2"
   homepage: https://docs.ofauth.com/v3/agents/skills
 ---
 
