@@ -317,7 +317,8 @@ Content-Type: application/json
 Private-app requests run directly, with no browser step: there is no recent-authentication requirement, no confirmation URL, and no confirmation header. Behaviour to handle:
 
 - Every write or destructive request needs an `Idempotency-Key` header (a fresh random value per logical action). Without it the request returns `403 idempotency_conflict` with `recovery.action` `correct_request`. Reuse a key only to retry the identical request.
-- If OFAuth cannot tell whether a write reached OnlyFans, it returns `409 unknown_outcome` with `recovery.action` `do_not_repeat` and an `operation_id`. Check the account (for example, read the post or message back) before deciding to send it again.
+- Idempotency keys are honoured for 90 days after their first use. Retrying a key whose write already succeeded sends nothing again: it returns `200` with `{ "outcome": "already_succeeded", "operation_id" }` and the header `Idempotent-Replayed: true`. The original response body is not stored, so read the result back if you need it. A key whose write failed is spent: try again with a new key. The same key with a different request returns `idempotency_conflict`.
+- If OFAuth cannot tell whether a write reached OnlyFans, it returns `409 unknown_outcome` with `recovery.action` `do_not_repeat` and an `operation_id`, and it keeps returning that for the same key. Check the account (for example, read the post or message back) before deciding to send it again with a new key.
 - A missing `x-linked-account-id` returns `400 linked_account_required`.
 - Errors use `{ "error", "recovery": { "action" }, "requestId" }` and set `x-request-id`; log `requestId`.
 
